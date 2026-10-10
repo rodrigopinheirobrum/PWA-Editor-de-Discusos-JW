@@ -1,4 +1,4 @@
-# Pacote web app — Editor de Esboços e Notas JW (v4-04)
+# Pacote web app — Editor de Esboços e Notas JW (v4-05)
 
 Esta pasta é o editor pronto para ser **hospedado** num endereço https. Hospedado assim, ele:
 - pode ser **instalado como aplicativo** (Android/Chrome, iPhone/Safari, computador) e abre em tela cheia;
@@ -26,7 +26,7 @@ Nada do que você escreve vai para o servidor: esboço, notas e backup ficam só
 - **Computador (Chrome/Edge):** ícone de instalar na barra de endereço, ou o botão **Instalar app**.
 
 ## 3. Atualizar para uma versão nova
-Troque o `index.html` no hospedeiro e, em `sw.js`, mude a linha `const VERSAO = '...'` (ex.: `v4-05-1`). Isso faz os aparelhos baixarem de novo; abrir o app duas vezes aplica a atualização.
+Troque o `index.html` no hospedeiro e, em `sw.js`, mude a linha `const VERSAO = '...'` (ex.: `v4-06-1`). Isso faz os aparelhos baixarem de novo; abrir o app duas vezes aplica a atualização.
 
 ## 4. Guardar no Google Drive (opcional, uma vez só)
 O botão **Guardar no Drive** envia o "Esboço final .html" para a pasta **Discursos JW** do seu Drive (o nome pode ser mudado na engrenagem ao lado do botão). Precisa de um *ID do cliente OAuth* gratuito:

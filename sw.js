@@ -1,7 +1,7 @@
 /* Service worker do Editor de Esboços e Notas JW.
    Guarda o aplicativo e as bibliotecas (cdnjs) para abrir também sem internet.
    Para publicar uma versão nova: troque VERSAO abaixo (isso faz os aparelhos baixarem de novo). */
-const VERSAO = 'v4-04-1';
+const VERSAO = 'v4-05-1';
 const CACHE = 'editor-esbocos-' + VERSAO;
 const APP = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'];
 

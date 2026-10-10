@@ -87,10 +87,10 @@
     button:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
     /* Só os botões "planos" (sem cor própria) clareiam o fundo no hover — nos botões
        coloridos essa regra genérica sobrescrevia o degradê e deixava o texto branco invisível. */
-    button:not(.btn-word):not(.btn-download):not(.btn-salvar):not(.btn-limpar):not(.btn-pdf):not(.btn-dark):not(.btn-leitura):hover { background: #f7f7fa; }
+    button:not(.btn-word):not(.btn-download):not(.btn-salvar):not(.btn-limpar):not(.btn-pdf):not(.btn-dark):not(.btn-leitura):not(.fab-modo):hover { background: #f7f7fa; }
     button:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
     button:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
-    body.dark-mode button:not(.btn-word):not(.btn-download):not(.btn-salvar):not(.btn-limpar):not(.btn-pdf):not(.btn-leitura):not(.btn-dark) {
+    body.dark-mode button:not(.btn-word):not(.btn-download):not(.btn-salvar):not(.btn-limpar):not(.btn-pdf):not(.btn-leitura):not(.btn-dark):not(.fab-modo) {
         background-color: #2a2a2a; color: #eee; border-color: #444;
     }
     body.dark-mode button:hover { filter: brightness(1.25); }
@@ -603,26 +603,31 @@
 
     body.trocando-modo *, body.trocando-modo *::before, body.trocando-modo *::after { transition: none !important; }
 
-    /* ===== Botão flutuante "Editar": só no modo leitura; um toque volta direto à edição ===== */
-    .fab-editar {
-        display: none; position: fixed; z-index: 300;
+    /* ===== Botão flutuante de modo (só o ícone, redondo, acompanha o tema):
+       na leitura = lápis verde (vai editar); na edição = livro âmbar (vai ler) ===== */
+    .fab-modo {
+        --fab-cor: #c76a00;
+        display: inline-flex; position: fixed; z-index: 300;
         right: max(16px, env(safe-area-inset-right)); bottom: max(18px, env(safe-area-inset-bottom));
-        align-items: center; gap: 8px; min-height: 48px; padding: 0 18px 0 14px; border-radius: 999px;
-        background: #3F7D4E; border: 1px solid #356a42; color: #fff; font-size: 0.92rem; font-weight: 700;
-        box-shadow: 0 4px 14px rgba(40,70,48,.38); cursor: pointer; transition: transform .12s, filter .12s;
+        align-items: center; justify-content: center; width: 50px; height: 50px; min-height: 0; padding: 0; border-radius: 50%;
+        background: var(--bg-toolbar); color: var(--fab-cor); border: 2px solid var(--fab-cor);
+        box-shadow: var(--shadow-lift); cursor: pointer;
+        transition: transform .12s, background-color .2s, color .2s, border-color .2s;
     }
-    .fab-editar i { font-size: 1.15rem; line-height: 1; }
-    .fab-editar:hover { background: #46895a; border-color: #3a7449; color: #fff; transform: translateY(-1px); filter: none; }
-    .fab-editar:active { transform: scale(.97); }
-    .fab-editar:focus-visible { outline: 3px solid #a8d5b3; outline-offset: 2px; }
-    body.modo-leitura-ativo .fab-editar { display: inline-flex; }
-    body:has(.dst-bar.ativo) .fab-editar,
-    body.dst-bar-visivel .fab-editar { display: none; }   /* não disputa espaço com a barra de marcação */
-    body.dark-mode .fab-editar { background: #3a7449; border-color: #2f6240; box-shadow: 0 4px 14px rgba(0,0,0,.55); }
-    @media print { .fab-editar { display: none !important; } }
-    @media (max-width: 420px){
-        .fab-editar { min-height: 46px; padding: 0 16px 0 12px; }
-    }
+    .fab-modo i.bi { font-size: 1.3rem; line-height: 1; }
+    .fab-modo .ico-editar { display: none; }
+    body.modo-leitura-ativo .fab-modo { --fab-cor: #2f7d47; }
+    body.modo-leitura-ativo .fab-modo .ico-editar { display: inline-block; }
+    body.modo-leitura-ativo .fab-modo .ico-ler { display: none; }
+    body.dark-mode .fab-modo { --fab-cor: #ffb454; }
+    body.dark-mode.modo-leitura-ativo .fab-modo { --fab-cor: #7fd19a; }
+    .fab-modo:hover, body.dark-mode .fab-modo:hover { background: var(--bg-toolbar); filter: none; transform: translateY(-1px); }
+    .fab-modo:active { transform: scale(.94); }
+    .fab-modo:focus-visible { outline: 3px solid var(--fab-cor); outline-offset: 3px; }
+    body:has(.dst-bar.ativo) .fab-modo,
+    body.dst-bar-visivel .fab-modo { display: none; }   /* não disputa espaço com a barra de marcação */
+    body { padding-bottom: 84px; }                       /* o último texto passa por cima do botão flutuante */
+    @media print { .fab-modo { display: none !important; } body { padding-bottom: 0; } }
 
     details.legend { margin: 18px 4px; font-size: 0.78rem; color: #777; }
     details.legend summary { cursor: pointer; font-weight: 600; }
@@ -630,7 +635,7 @@
 
     /* ===== Responsivo ===== */
     @media (max-width: 700px){
-        body{ padding: 10px; }
+        body{ padding: 10px 10px 84px; }
         .esboco-container{ padding: 16px 10px; }
         .toolbar{ padding: 8px; gap: 8px; position: static; }
         .toolbar-grupo{ padding-right: 8px; gap: 4px; }
@@ -794,7 +799,7 @@
     </div>
 
     <!-- Botão flutuante: sempre que estiver no modo leitura, leva direto para a edição -->
-    <button type="button" class="fab-editar" id="fabEditar" title="Editar o esboço" aria-label="Editar o esboço"><i class="bi bi-pencil-fill" aria-hidden="true"></i><span>Editar</span></button>
+    <button type="button" class="fab-modo" id="fabEditar" title="Modo leitura (esboço limpo com as notas)" aria-label="Modo leitura"><i class="bi bi-book ico-ler" aria-hidden="true"></i><i class="bi bi-pencil-fill ico-editar" aria-hidden="true"></i></button>
 
     <div class="status-bar" id="statusBar"></div>
 
@@ -858,7 +863,7 @@
         <summary>Como o esboço se liga aos parágrafos do JW Library?</summary>
         <p>O JW Library guarda notas pessoais <em>separadas</em> da publicação, ligadas só por um número de parágrafo (§) — o app junta as duas coisas ao abrir a publicação oficial. No S-34, o <strong>título é o §1</strong> e a linha “Nota ao orador:” forma um único §2 com o texto que vem logo abaixo; daí em diante cada bloco é um § (o botão <i class="bi bi-link-45deg"></i> ao lado do número agrupa um bloco-rótulo com o seguinte). Ao carregar o .jwpub, a ferramenta confere o total de parágrafos. O texto do esboço nunca vai no .jwlibrary.</p>
         <p><strong>Destaques, negrito e sublinhado</strong> só funcionam no <strong>modo leitura</strong> (esboço e notas, pela barra que aparece junto da seleção) e são só para o seu estudo: ficam salvos automaticamente no rascunho do navegador e no .html/PDF, e voltam ao reabrir o .html. O JW Library não tem destaque dentro do texto de uma nota, então no .jwlibrary vai o texto simples (a cor da nota, em cima, continua indo). <strong>Ocultar parágrafo</strong> (o olho ao lado do §) esconde o parágrafo e suas notas da leitura e do PDF, mas ele continua no arquivo .html e no .jwlibrary.</p>
-        <p><strong>Ler e editar:</strong> no modo leitura aparece o botão verde <strong>Editar</strong> no canto — um toque e você volta a editar (“Mostrar controles” faz o mesmo). Ao abrir a ferramenta, ela pergunta se você quer <strong>continuar de onde parou</strong>: respondendo “Sim”, o último backup e o último esboço guardados neste navegador são carregados sozinhos (“Esquecer arquivos guardados” apaga essa cópia).</p>
+        <p><strong>Ler e editar:</strong> o botão redondo do canto da tela troca de modo: na leitura mostra o <strong>lápis verde</strong> (um toque e você volta a editar; “Mostrar controles” faz o mesmo) e, na edição, o <strong>livro</strong> (um toque e você vai para o modo leitura). Ele acompanha o tema claro/escuro. Ao abrir a ferramenta, ela pergunta se você quer <strong>continuar de onde parou</strong>: respondendo “Sim”, o último backup e o último esboço guardados neste navegador são carregados sozinhos (“Esquecer arquivos guardados” apaga essa cópia).</p>
         <p><strong>Referências:</strong> um texto bíblico (ícone de livro, verde) abre direto no aplicativo <strong>JW Library</strong>; uma fonte de matéria (ícone de lupa, dourado e pontilhado) é pesquisada no <strong>wol.jw.org</strong>. No modo leitura o toque abre na hora; ao editar, um aviso pergunta antes. Se o app não abrir, aparece a opção “Ler no wol.jw.org”.</p>
         <p><strong>Imagens:</strong> o botão <i class="bi bi-image"></i> ao lado de cada parágrafo coloca uma imagem logo abaixo dele, como parágrafo identado (recuo, tamanho e legenda ajustáveis). Elas vão no “Esboço final .html” e no PDF — somente quando “Texto” está marcado — e <em>não</em> vão no .jwlibrary.</p>
         <p><strong>Guardar e instalar:</strong> “Esboço final .html” baixa o arquivo; “Guardar no Drive” envia esse mesmo arquivo para a pasta “Discursos JW” do seu Google Drive (exige abrir a ferramenta por um endereço https e configurar o ID do cliente na engrenagem; o botão “Compartilhar” é a alternativa sem configuração). “Instalar app” coloca a ferramenta na tela inicial, também por https.</p>
@@ -1618,6 +1623,11 @@
     const btn = el('btn-modo-leitura');
     document.body.classList.toggle('modo-leitura-ativo', modoLeituraAtivo);
     if (window.esconderBarraDestaque) window.esconderBarraDestaque();
+    const fab = el('fabEditar');
+    if (fab){
+      const rot = modoLeituraAtivo ? 'Editar o esboço' : 'Modo leitura (esboço limpo com as notas)';
+      fab.title = rot; fab.setAttribute('aria-label', rot);
+    }
     if (modoLeituraAtivo){
       btn.innerHTML = '<i class="bi bi-pencil-square"></i>'; btn.classList.add('modo-ativo');
       btn.title = 'Voltar a editar'; btn.setAttribute('aria-label', 'Voltar a editar');
@@ -1647,7 +1657,7 @@
     if (modoLeituraAtivo) toggleModoLeitura();
     document.body.classList.remove('controles-ocultos');
   };
-  el('fabEditar').addEventListener('click', () => { if (modoLeituraAtivo) toggleModoLeitura(); });
+  el('fabEditar').addEventListener('click', () => toggleModoLeitura());   // o mesmo botão leva à edição (na leitura) e à leitura (na edição)
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && document.body.classList.contains('controles-ocultos')) mostrarControles();
     if (e.key === 'Escape' && el('overlayGerenciar').classList.contains('ativo')) fecharGerenciadorNotas();
@@ -4340,12 +4350,12 @@ document.addEventListener('click',function(e){
     return { specs, nNotas, quando, nome };
   }
   // O último estado volta em modo leitura e com os controles escondidos — uma leitura limpa do esboço;
-  // nada é alterado sem querer. Para editar: botão flutuante "Editar" (ou "Mostrar controles").
+  // nada é alterado sem querer. Para editar: lápis verde flutuante (ou "Mostrar controles").
   function entrarLeituraLimpa(r, comBackup){
     if (!r) return;
     if (!modoLeituraAtivo) window.toggleModoLeitura();
     window.ocultarControles();
-    el('rascunhoTexto').textContent = `Retomado em modo leitura: ${r.nome} — ${r.specs.length} bloco(s), ${r.nNotas} nota(s)` + (r.quando ? `, salvo em ${r.quando}` : '') + '. Para editar, toque em "Editar".';
+    el('rascunhoTexto').textContent = `Retomado em modo leitura: ${r.nome} — ${r.specs.length} bloco(s), ${r.nNotas} nota(s)` + (r.quando ? `, salvo em ${r.quando}` : '') + '. Para editar, toque no lápis verde.';
     el('rascunhoBanner').style.display = 'flex';   // (fica por trás dos controles escondidos; aparece quando eles voltam)
     mostrarToast('Retomado em modo leitura' + (comBackup ? ' (backup carregado)' : '') + '.', 'Mostrar controles', () => window.mostrarControles(), null, 6000);
   }
