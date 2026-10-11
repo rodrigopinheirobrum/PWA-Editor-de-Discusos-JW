@@ -26,6 +26,8 @@
         --bg-ref: #eef1ef;
         --border-ref: #cfd8d3;
         --accent: #2b579a;
+        --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+        --ease-out: cubic-bezier(.22, 1, .36, 1);
         --radius: 12px;
         --radius-sm: 8px;
         --shadow-sm: 0 1px 2px rgba(20,20,30,.05), 0 1px 1px rgba(20,20,30,.04);
@@ -79,18 +81,20 @@
     button {
         cursor: pointer; border: 1px solid var(--border-soft); background: #fff; color: #3a3a3a;
         border-radius: var(--radius-sm); padding: 7px 12px; font-size: 13px; font-weight: 500;
-        transition: transform .12s ease, box-shadow .12s ease, background-color .15s, filter .15s;
+        transition: transform .2s var(--ease-spring), box-shadow .15s ease, background-color .15s, filter .15s, opacity .15s;
         display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
         min-height: 34px; box-shadow: var(--shadow-sm);
+        -webkit-tap-highlight-color: transparent; touch-action: manipulation;
     }
-    button i.bi { font-size: 14px; line-height: 1; }
-    button:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); }
+    button i.bi { font-size: 14px; line-height: 1; transition: transform .22s var(--ease-spring); }
+    /* O "levantar" do hover só onde existe mouse (no celular o :hover ficaria preso depois do toque) */
+    @media (hover: hover) and (pointer: fine) { button:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); } }
     /* Só os botões "planos" (sem cor própria) clareiam o fundo no hover — nos botões
        coloridos essa regra genérica sobrescrevia o degradê e deixava o texto branco invisível. */
-    button:not(.btn-word):not(.btn-download):not(.btn-salvar):not(.btn-limpar):not(.btn-pdf):not(.btn-dark):not(.btn-leitura):not(.fab-modo):hover { background: #f7f7fa; }
-    button:active { transform: translateY(0); box-shadow: var(--shadow-sm); }
+    button:not(.btn-word):not(.btn-download):not(.btn-salvar):not(.btn-limpar):not(.btn-pdf):not(.btn-dark):not(.btn-leitura):not(.fab-modo):not(.dock-btn):hover { background: #f7f7fa; }
+    button:active { transform: scale(.955); box-shadow: var(--shadow-sm); transition-duration: .08s; }
     button:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
-    body.dark-mode button:not(.btn-word):not(.btn-download):not(.btn-salvar):not(.btn-limpar):not(.btn-pdf):not(.btn-leitura):not(.btn-dark):not(.fab-modo) {
+    body.dark-mode button:not(.btn-word):not(.btn-download):not(.btn-salvar):not(.btn-limpar):not(.btn-pdf):not(.btn-leitura):not(.btn-dark):not(.fab-modo):not(.dock-btn) {
         background-color: #2a2a2a; color: #eee; border-color: #444;
     }
     body.dark-mode button:hover { filter: brightness(1.25); }
@@ -150,7 +154,7 @@
         border: 2px solid rgba(255,255,255,.75); box-shadow: 0 0 0 1px rgba(0,0,0,.2);
     }
     .dst-sw:hover { transform: scale(1.12); }
-    .dst-sw.ativo { box-shadow: 0 0 0 2px var(--accent); }
+    .dst-sw.ativo { box-shadow: 0 0 0 2px var(--accent); transform: scale(1.12); }
     .dst-borracha { width: 26px; height: 26px; min-height: 0; padding: 0; border-radius: 50%; flex-shrink: 0; }
     .dst-borracha i.bi { font-size: 13px; }
     .dst-sep { width: 1px; align-self: stretch; min-height: 18px; background: var(--border-soft); flex-shrink: 0; margin: 0 1px; }
@@ -181,7 +185,7 @@
 
     /* ===== Toast (desfazer exclusão) ===== */
     .toast-container {
-        position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%);
+        position: fixed; left: 50%; bottom: 82px; transform: translateX(-50%);
         z-index: 500; display: flex; flex-direction: column; gap: 8px; align-items: center;
         pointer-events: none;
     }
@@ -474,8 +478,9 @@
         width: 15px; height: 15px; border-radius: 50%; padding: 0; min-height: auto;
         border: 2px solid transparent; box-shadow: none; opacity: .55; transition: opacity .15s, transform .15s;
     }
+    .dot-cor-jwl { transition: opacity .15s, transform .25s var(--ease-spring), border-color .15s; }
     .dot-cor-jwl:hover { opacity: 1; transform: scale(1.15); }
-    .dot-cor-jwl.ativo { opacity: 1; border-color: #2B2620; }
+    .dot-cor-jwl.ativo { opacity: 1; border-color: #2B2620; transform: scale(1.22); }
     body.dark-mode .dot-cor-jwl.ativo { border-color: #fff; }
     .dot-cor-jwl.sem-cor {
         background: #e0ddd3; color: #888; font-size: 9px; display: flex; align-items: center; justify-content: center;
@@ -492,6 +497,14 @@
     .caixa-comentario.cor-nota-4, .titulo-nota.cor-nota-4 { background: #FCE4EC; border-left-color: #EC407A; }
     .caixa-comentario.cor-nota-5, .titulo-nota.cor-nota-5 { background: #FFEDE3; border-left-color: #FF8A65; }
     .caixa-comentario.cor-nota-6, .titulo-nota.cor-nota-6 { background: #F3E5F5; border-left-color: #AB47BC; }
+    /* Na leitura, as cores das notas também aparecem no tema claro: a regra da leitura (body.modo-leitura-ativo .caixa-comentario) é mais específica
+       que .cor-nota-N e deixava toda caixa branca. No escuro as regras abaixo (mais específicas) continuam valendo. */
+    body.modo-leitura-ativo .caixa-comentario.cor-nota-1, body.modo-leitura-ativo .titulo-nota.cor-nota-1 { background: #FFF6D9; border-left-color: #FBC02D; }
+    body.modo-leitura-ativo .caixa-comentario.cor-nota-2, body.modo-leitura-ativo .titulo-nota.cor-nota-2 { background: #E8F5E9; border-left-color: #66BB6A; }
+    body.modo-leitura-ativo .caixa-comentario.cor-nota-3, body.modo-leitura-ativo .titulo-nota.cor-nota-3 { background: #E1F5FE; border-left-color: #4FC3F7; }
+    body.modo-leitura-ativo .caixa-comentario.cor-nota-4, body.modo-leitura-ativo .titulo-nota.cor-nota-4 { background: #FCE4EC; border-left-color: #EC407A; }
+    body.modo-leitura-ativo .caixa-comentario.cor-nota-5, body.modo-leitura-ativo .titulo-nota.cor-nota-5 { background: #FFEDE3; border-left-color: #FF8A65; }
+    body.modo-leitura-ativo .caixa-comentario.cor-nota-6, body.modo-leitura-ativo .titulo-nota.cor-nota-6 { background: #F3E5F5; border-left-color: #AB47BC; }
     body.dark-mode .caixa-comentario.cor-nota-1, body.dark-mode .titulo-nota.cor-nota-1 { background: #4a3f14; border-left-color: #FBC02D; }
     body.dark-mode .caixa-comentario.cor-nota-2, body.dark-mode .titulo-nota.cor-nota-2 { background: #1e3a20; border-left-color: #66BB6A; }
     body.dark-mode .caixa-comentario.cor-nota-3, body.dark-mode .titulo-nota.cor-nota-3 { background: #163a45; border-left-color: #4FC3F7; }
@@ -584,24 +597,17 @@
 
     /* ===== Ocultar controles: leitura sem distrações ===== */
     body.controles-ocultos .toolbar,
-    body.controles-ocultos .pub-meta,
     body.controles-ocultos .ref-banner,
     body.controles-ocultos .rascunho-banner,
     body.controles-ocultos .retomar-banner,
     body.controles-ocultos .status-bar,
     body.controles-ocultos details.legend { display: none !important; }
 
-    .mini-controles {
-        display: none; position: fixed; top: 12px; right: 12px; z-index: 200;
-        gap: 6px; background: var(--bg-toolbar); border: 1px solid var(--border-soft); border-radius: 22px;
-        padding: 6px 8px; box-shadow: var(--shadow-lift);
-    }
-    .mini-controles button { min-height: 32px; width: 32px; padding: 0; border-radius: 50%; }
-    body.controles-ocultos .mini-controles { display: flex; }
+    body.quadro-oculto .pub-meta { display: none !important; }   /* o quadro de notas tem botão próprio, separado dos controles */
     body.controles-ocultos .esboco-container { padding-top: 30px; }
 
 
-    body.trocando-modo *, body.trocando-modo *::before, body.trocando-modo *::after { transition: none !important; }
+    body.trocando-modo *:not(.fab-modo):not(.fab-modo *), body.trocando-modo *::before, body.trocando-modo *::after { transition: none !important; }
 
     /* ===== Botão flutuante de modo (só o ícone, redondo, acompanha o tema):
        na leitura = lápis verde (vai editar); na edição = livro âmbar (vai ler) ===== */
@@ -614,20 +620,144 @@
         box-shadow: var(--shadow-lift); cursor: pointer;
         transition: transform .12s, background-color .2s, color .2s, border-color .2s;
     }
-    .fab-modo i.bi { font-size: 1.3rem; line-height: 1; }
-    .fab-modo .ico-editar { display: none; }
+    .fab-modo i.bi { position: absolute; font-size: 1.3rem; line-height: 1; transition: transform .34s var(--ease-spring), opacity .18s ease; }
+    .fab-modo .ico-editar { opacity: 0; transform: rotate(-80deg) scale(.4); }
     body.modo-leitura-ativo .fab-modo { --fab-cor: #2f7d47; }
-    body.modo-leitura-ativo .fab-modo .ico-editar { display: inline-block; }
-    body.modo-leitura-ativo .fab-modo .ico-ler { display: none; }
+    body.modo-leitura-ativo .fab-modo .ico-editar { opacity: 1; transform: none; }
+    body.modo-leitura-ativo .fab-modo .ico-ler { opacity: 0; transform: rotate(80deg) scale(.4); }
     body.dark-mode .fab-modo { --fab-cor: #ffb454; }
     body.dark-mode.modo-leitura-ativo .fab-modo { --fab-cor: #7fd19a; }
     .fab-modo:hover, body.dark-mode .fab-modo:hover { background: var(--bg-toolbar); filter: none; transform: translateY(-1px); }
-    .fab-modo:active { transform: scale(.94); }
+    .fab-modo:active { transform: scale(.88); }
     .fab-modo:focus-visible { outline: 3px solid var(--fab-cor); outline-offset: 3px; }
-    body:has(.dst-bar.ativo) .fab-modo,
-    body.dst-bar-visivel .fab-modo { display: none; }   /* não disputa espaço com a barra de marcação */
+    body.dst-bar-ativa .fab-modo { display: none; }   /* não disputa espaço com a barra de marcação */
     body { padding-bottom: 84px; }                       /* o último texto passa por cima do botão flutuante */
+
+    /* ===== Rodapé: controles da página no pé da tela, ao lado do botão de modo =====
+       Controles (barra de ferramentas) e Quadro de notas têm cada um o seu botão de mostrar/ocultar; tema, fonte e numeração ficam à mão. */
+    .rodape-dock {
+        position: fixed; z-index: 300; display: flex; align-items: center; gap: 4px; height: 50px; padding: 0 8px;
+        right: calc(max(16px, env(safe-area-inset-right)) + 60px); bottom: max(18px, env(safe-area-inset-bottom));
+        background: var(--bg-toolbar); border: 1px solid var(--border-soft); border-radius: 999px; box-shadow: var(--shadow-lift);
+        max-width: calc(100vw - 96px);
+    }
+    .rodape-dock [hidden] { display: none !important; }
+    .dock-btn {
+        position: relative; width: 38px; height: 38px; min-height: 0; padding: 0; flex-shrink: 0; border-radius: 50%;
+        border: none; background: transparent; box-shadow: none; color: var(--cor-texto);
+    }
+    .dock-btn i.bi { font-size: 17px; }
+    .dock-btn:hover { background: rgba(0,0,0,.06); box-shadow: none; }
+    body.dark-mode .dock-btn:hover { background: rgba(255,255,255,.1); filter: none; }
+    .dock-btn:active { transform: scale(.88); box-shadow: none; }
+    .dock-btn:focus-visible { outline-offset: 0; }
+    .dock-sep { width: 1px; height: 22px; background: var(--border-soft); flex-shrink: 0; margin: 0 2px; }
+    /* painéis (Controles / Quadro): acesos enquanto estão visíveis */
+    .dock-painel[aria-expanded="true"], .dock-btn[aria-pressed="true"] { background: rgba(43, 87, 154, .14); color: var(--accent); }
+    body.dark-mode .dock-painel[aria-expanded="true"], body.dark-mode .dock-btn[aria-pressed="true"] { background: rgba(130, 175, 255, .2); color: #a9c8ff; }
+    .dock-painel[aria-expanded="true"]:hover, .dock-btn[aria-pressed="true"]:hover { background: rgba(43, 87, 154, .22); }
+    /* tema: lua no claro (vai para o escuro), sol no escuro */
+    .dock-tema i.bi { position: absolute; transition: transform .34s var(--ease-spring), opacity .18s ease; }
+    .dock-tema .ico-sol { opacity: 0; transform: rotate(-80deg) scale(.4); }
+    body.dark-mode .dock-tema .ico-sol { opacity: 1; transform: none; color: #ffcf6b; }
+    body.dark-mode .dock-tema .ico-lua { opacity: 0; transform: rotate(80deg) scale(.4); }
+    .dock-tema i.bi.gira { animation: icone-gira .55s var(--ease-out); }
+    body.dst-bar-ativa .rodape-dock { display: none; }   /* não disputa espaço com a barra de marcação */
+    @media print { .rodape-dock { display: none !important; } }
     @media print { .fab-modo { display: none !important; } body { padding-bottom: 0; } }
+
+    /* ===== Microinterações =====
+       toque com "mola" e ondulação, anel de foco por teclado, ícones que reagem, estados carregando → ok/erro,
+       barra de progresso no topo, janelas que entram suavemente. Tudo some com "reduzir movimento" (exceto o indicador de carregando). */
+    button:focus-visible, a:focus-visible, summary:focus-visible, input[type="checkbox"]:focus-visible, .chk-opcao:focus-within, .chk-numeros:focus-within {
+        outline: 3px solid rgba(43, 87, 154, .55); outline-offset: 2px;
+    }
+    body.dark-mode button:focus-visible, body.dark-mode a:focus-visible, body.dark-mode summary:focus-visible,
+    body.dark-mode input[type="checkbox"]:focus-visible { outline-color: rgba(143, 180, 234, .8); }
+    .fab-modo:focus-visible { outline-color: var(--fab-cor); }
+    input[type="checkbox"] { accent-color: var(--accent); transition: transform .2s var(--ease-spring); }
+    input[type="checkbox"]:active { transform: scale(.82); }
+    .chk-opcao, .chk-numeros, .chk-filtro { transition: transform .2s var(--ease-spring), box-shadow .15s; -webkit-tap-highlight-color: transparent; }
+    .chk-opcao:active, .chk-numeros:active { transform: scale(.96); }
+
+    /* ícones que reagem ao passar o mouse (só com mouse) */
+    @media (hover: hover) and (pointer: fine) {
+        button:hover i.bi { transform: scale(1.14); }
+        .btn-download:hover i.bi-download, .btn-download:hover i.bi-filetype-html { transform: translateY(2px); }
+        .btn-download:hover i.bi-cloud-arrow-up { transform: translateY(-2px); }
+        #btnDriveConfig:hover i.bi, button:hover i.bi-arrow-counterclockwise { transform: rotate(-70deg); }
+        #btnDriveConfig:hover i.bi { transform: rotate(75deg); }
+        button:hover i.bi-trash3 { transform: rotate(-14deg) scale(1.1); }
+        button:hover i.bi-zoom-in, button:hover i.bi-zoom-out { transform: scale(1.3); }
+        button:hover i.bi-book, button:hover i.bi-pencil-square { transform: rotate(-8deg) scale(1.12); }
+        .fab-modo:hover i.bi { transform: scale(1.1); }
+    }
+    .btn-leitura i.bi, .btn-dark i.bi { animation: icone-pop .38s var(--ease-spring); }
+    .btn-dark i.bi.gira { animation: icone-gira .55s var(--ease-out); }
+    @keyframes icone-pop { from { transform: scale(.4) rotate(-30deg); opacity: .2; } to { transform: none; opacity: 1; } }
+    @keyframes icone-gira { from { transform: rotate(-200deg) scale(.5); } to { transform: none; } }
+
+    /* ondulação (criada pelo script no ponto do toque) */
+    .ripple {
+        position: absolute; border-radius: 50%; pointer-events: none; background: currentColor; opacity: .26;
+        transform: scale(0); animation: ripple .6s var(--ease-out) forwards;
+    }
+    @keyframes ripple { to { transform: scale(1); opacity: 0; } }
+
+    /* estados do botão: carregando → ok / erro */
+    .btn-spin {
+        width: 13px; height: 13px; flex: none; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent;
+        animation: girar .7s linear infinite;
+    }
+    @keyframes girar { to { transform: rotate(360deg); } }
+    button.btn-ocupado { pointer-events: none; cursor: progress; filter: saturate(.75) brightness(.97); }
+    button.btn-ok { animation: anel-ok .9s ease-out; }
+    button.btn-ok i.bi { animation: icone-pop .42s var(--ease-spring); }
+    button.btn-erro { animation: tremer .42s ease-in-out, anel-erro .9s ease-out; }
+    @keyframes anel-ok { 0% { box-shadow: 0 0 0 0 rgba(67,160,71,.6); } 100% { box-shadow: 0 0 0 10px rgba(67,160,71,0); } }
+    @keyframes anel-erro { 0% { box-shadow: 0 0 0 0 rgba(229,57,53,.6); } 100% { box-shadow: 0 0 0 10px rgba(229,57,53,0); } }
+    @keyframes tremer { 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+    .tremer { animation: tremer .42s ease-in-out; }
+
+    /* barra de progresso fina no topo enquanto algo carrega (aparece mesmo com os controles escondidos) */
+    .barra-progresso { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 700; pointer-events: none; opacity: 0; transition: opacity .25s; overflow: hidden; }
+    .barra-progresso::before {
+        content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 38%;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent); animation: indeterminado 1.05s ease-in-out infinite;
+    }
+    body.dark-mode .barra-progresso::before { background: linear-gradient(90deg, transparent, #8fb4ea, transparent); }
+    body.ocupado .barra-progresso { opacity: 1; }
+    @keyframes indeterminado { from { transform: translateX(-100%); } to { transform: translateX(270%); } }
+
+    /* janelas: o fundo clareia e o painel sobe com leve "mola" */
+    .overlay-fundo.ativo { animation: fundo-entrar .2s ease-out; }
+    .overlay-fundo.ativo > * { animation: painel-entrar .3s var(--ease-spring); }
+    @keyframes fundo-entrar { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes painel-entrar { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+
+    /* aviso (toast): linha que mostra quanto tempo falta */
+    .toast { position: relative; overflow: hidden; }
+    .toast::after {
+        content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: rgba(127,194,255,.85);
+        transform-origin: left; animation: toast-tempo var(--dur, 6s) linear forwards;
+    }
+    @keyframes toast-tempo { to { transform: scaleX(0); } }
+
+    /* setinha dos "Como…?" gira ao abrir */
+    details.legend > summary, details.drive-passos > summary { list-style: none; }
+    details.legend > summary::-webkit-details-marker, details.drive-passos > summary::-webkit-details-marker { display: none; }
+    details.legend > summary::before, details.drive-passos > summary::before {
+        content: '▸'; display: inline-block; margin-right: 6px; transition: transform .22s var(--ease-spring);
+    }
+    details[open].legend > summary::before, details[open].drive-passos > summary::before { transform: rotate(90deg); }
+
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+        .btn-spin { animation-duration: 1.4s !important; animation-iteration-count: infinite !important; }
+        body.ocupado .barra-progresso::before { animation-duration: 2.2s !important; animation-iteration-count: infinite !important; }
+        .ripple { display: none; }
+    }
+    @media print { .barra-progresso, .ripple { display: none !important; } }
 
     details.legend { margin: 18px 4px; font-size: 0.78rem; color: #777; }
     details.legend summary { cursor: pointer; font-weight: 600; }
@@ -653,12 +783,17 @@
         .pub-meta .fields{ grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 420px){
+        .rodape-dock{ padding: 0 6px; gap: 2px; }
+        .dock-btn{ width: 35px; height: 35px; }
         .dst-bar{ padding: 8px; gap: 6px; }
         .dst-swatches{ gap: 6px; }
         .dst-sw, .dst-borracha, .dst-fmt{ width: 29px; height: 29px; }
         .pub-meta .fields{ grid-template-columns: 1fr; }
     }
     @media (max-width: 340px){
+        .rodape-dock{ padding: 0 5px; gap: 1px; }
+        .dock-btn{ width: 33px; height: 33px; }
+        .dock-btn i.bi{ font-size: 16px; }
         .dst-bar{ padding: 7px; gap: 4px; }
         .dst-swatches{ gap: 4px; }
         .dst-sw, .dst-borracha, .dst-fmt{ width: 26px; height: 26px; }
@@ -668,6 +803,7 @@
 </head>
 <body>
 
+    <div class="barra-progresso" id="barraProgresso" role="progressbar" aria-label="Carregando" aria-hidden="true"></div>
     <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
     <div class="rascunho-banner" id="rascunhoBanner">
@@ -735,7 +871,7 @@
         </div>
     </div>
 
-    <div class="toolbar">
+    <div class="toolbar" id="toolbarControles">
         <div class="toolbar-grupo">
             <input type="file" id="upload-backup" style="display:none;">
             <button class="btn-word" onclick="iniciarUploadBackup()" title="Carregar seu backup .jwlibrary (necessário para gerar o .jwlibrary)"><i class="bi bi-archive"></i> Backup</button>
@@ -768,23 +904,9 @@
         </div>
 
         <div class="toolbar-grupo" style="margin-left:auto;">
-            <button class="btn-dark" onclick="toggleDarkMode()" title="Tema claro/escuro" aria-label="Alternar tema claro/escuro"><i class="bi bi-moon-stars-fill"></i></button>
-            <button onclick="mudarTamanhoFonte(2)" title="Aumentar fonte" aria-label="Aumentar tamanho da fonte"><i class="bi bi-zoom-in"></i></button>
-            <button onclick="mudarTamanhoFonte(-2)" title="Diminuir fonte" aria-label="Diminuir tamanho da fonte"><i class="bi bi-zoom-out"></i></button>
             <button id="btnInstalarApp" title="Instalar esta ferramenta como aplicativo (funciona também sem internet, em tela cheia)" aria-label="Instalar como aplicativo"><i class="bi bi-box-arrow-in-down"></i> Instalar app</button>
             <button class="btn-leitura" id="btn-modo-leitura" onclick="toggleModoLeitura()" title="Alternar entre ler e editar" aria-label="Alternar entre ler e editar"><i class="bi bi-book"></i></button>
-            <button id="btn-ocultar-controles" onclick="ocultarControles()" title="Esconder toda a barra de ferramentas para uma leitura sem distrações" aria-label="Esconder controles" style="display:none;"><i class="bi bi-eye-slash"></i></button>
-            <label class="chk-numeros" id="chkNumerosWrap" style="display:none;" title="Esconder os números de parágrafo na visualização limpa">
-                <input type="checkbox" id="chkOcultarNumeros" aria-label="Esconder numeração dos parágrafos na visualização limpa" onchange="document.body.classList.toggle('numeros-ocultos', this.checked)"> <i class="bi bi-list-ol" aria-hidden="true"></i>
-            </label>
         </div>
-    </div>
-
-    <div class="mini-controles" id="miniControles">
-        <button onclick="toggleDarkMode()" title="Tema claro/escuro" aria-label="Alternar tema claro/escuro"><i class="bi bi-moon-stars-fill"></i></button>
-        <button onclick="mudarTamanhoFonte(2)" title="Aumentar fonte" aria-label="Aumentar tamanho da fonte"><i class="bi bi-zoom-in"></i></button>
-        <button onclick="mudarTamanhoFonte(-2)" title="Diminuir fonte" aria-label="Diminuir tamanho da fonte"><i class="bi bi-zoom-out"></i></button>
-        <button onclick="mostrarControles()" title="Mostrar todos os controles (ou tecle Esc)" aria-label="Mostrar todos os controles"><i class="bi bi-eye"></i></button>
     </div>
 
     <!-- Barra flutuante: aparece ao selecionar um trecho do esboço ou de uma nota.
@@ -800,6 +922,18 @@
 
     <!-- Botão flutuante: sempre que estiver no modo leitura, leva direto para a edição -->
     <button type="button" class="fab-modo" id="fabEditar" title="Modo leitura (esboço limpo com as notas)" aria-label="Modo leitura"><i class="bi bi-book ico-ler" aria-hidden="true"></i><i class="bi bi-pencil-fill ico-editar" aria-hidden="true"></i></button>
+
+    <!-- Rodapé: os botões de uso ficam no pé da tela, ao lado do botão de modo.
+         Controles e Quadro de notas são comandos separados (cada um mostra/oculta o seu painel). -->
+    <nav class="rodape-dock" id="rodapeDock" aria-label="Controles da página">
+        <button type="button" class="dock-btn dock-painel" id="dockControles" aria-expanded="true" aria-controls="toolbarControles" title="Ocultar os controles" aria-label="Mostrar ou ocultar os controles (carregar, exportar, salvar)"><i class="bi bi-sliders" aria-hidden="true"></i></button>
+        <button type="button" class="dock-btn dock-painel" id="dockQuadro" aria-expanded="true" aria-controls="pubMeta" title="Ocultar o quadro de notas" aria-label="Mostrar ou ocultar o quadro de notas (contagem, ir ao parágrafo, gerenciar)" hidden><i class="bi bi-journal-check" aria-hidden="true"></i></button>
+        <span class="dock-sep" aria-hidden="true"></span>
+        <button type="button" class="dock-btn dock-tema" id="dockTema" onclick="toggleDarkMode()" title="Tema claro/escuro" aria-label="Alternar tema claro/escuro"><i class="bi bi-moon-stars-fill ico-lua" aria-hidden="true"></i><i class="bi bi-sun-fill ico-sol" aria-hidden="true"></i></button>
+        <button type="button" class="dock-btn" id="dockFonteMais" onclick="mudarTamanhoFonte(2)" title="Aumentar fonte" aria-label="Aumentar tamanho da fonte"><i class="bi bi-zoom-in" aria-hidden="true"></i></button>
+        <button type="button" class="dock-btn" id="dockFonteMenos" onclick="mudarTamanhoFonte(-2)" title="Diminuir fonte" aria-label="Diminuir tamanho da fonte"><i class="bi bi-zoom-out" aria-hidden="true"></i></button>
+        <button type="button" class="dock-btn" id="dockNumeros" aria-pressed="false" title="Mostrar os números dos parágrafos" aria-label="Mostrar ou esconder os números dos parágrafos" hidden><i class="bi bi-list-ol" aria-hidden="true"></i></button>
+    </nav>
 
     <div class="status-bar" id="statusBar"></div>
 
@@ -863,7 +997,7 @@
         <summary>Como o esboço se liga aos parágrafos do JW Library?</summary>
         <p>O JW Library guarda notas pessoais <em>separadas</em> da publicação, ligadas só por um número de parágrafo (§) — o app junta as duas coisas ao abrir a publicação oficial. No S-34, o <strong>título é o §1</strong> e a linha “Nota ao orador:” forma um único §2 com o texto que vem logo abaixo; daí em diante cada bloco é um § (o botão <i class="bi bi-link-45deg"></i> ao lado do número agrupa um bloco-rótulo com o seguinte). Ao carregar o .jwpub, a ferramenta confere o total de parágrafos. O texto do esboço nunca vai no .jwlibrary.</p>
         <p><strong>Destaques, negrito e sublinhado</strong> só funcionam no <strong>modo leitura</strong> (esboço e notas, pela barra que aparece junto da seleção) e são só para o seu estudo: ficam salvos automaticamente no rascunho do navegador e no .html/PDF, e voltam ao reabrir o .html. O JW Library não tem destaque dentro do texto de uma nota, então no .jwlibrary vai o texto simples (a cor da nota, em cima, continua indo). <strong>Ocultar parágrafo</strong> (o olho ao lado do §) esconde o parágrafo e suas notas da leitura e do PDF, mas ele continua no arquivo .html e no .jwlibrary.</p>
-        <p><strong>Ler e editar:</strong> o botão redondo do canto da tela troca de modo: na leitura mostra o <strong>lápis verde</strong> (um toque e você volta a editar; “Mostrar controles” faz o mesmo) e, na edição, o <strong>livro</strong> (um toque e você vai para o modo leitura). Ele acompanha o tema claro/escuro. Ao abrir a ferramenta, ela pergunta se você quer <strong>continuar de onde parou</strong>: respondendo “Sim”, o último backup e o último esboço guardados neste navegador são carregados sozinhos (“Esquecer arquivos guardados” apaga essa cópia).</p>
+        <p><strong>Ler e editar:</strong> o botão redondo do canto da tela troca de modo: na leitura mostra o <strong>lápis verde</strong> (um toque e você volta a editar) e, na edição, o <strong>livro</strong> (um toque e você vai para o modo leitura). Ele acompanha o tema claro/escuro. <strong>Rodapé:</strong> ao lado dele ficam, no pé da tela, o botão <strong>Controles</strong> (mostra/oculta a barra com carregar, exportar e salvar; escondida na leitura limpa, tocar nele também volta a editar), o botão <strong>Quadro de notas</strong> (mostra/oculta o quadro com contagem, “Ir ao §” e “Gerenciar notas” — é um comando separado, funciona também na leitura), o tema claro/escuro, a fonte (+ / −) e, na leitura, os números dos parágrafos. Nas cores das notas, a leitura mostra a cor escolhida também no tema claro. Ao abrir a ferramenta, ela pergunta se você quer <strong>continuar de onde parou</strong>: respondendo “Sim”, o último backup e o último esboço guardados neste navegador são carregados sozinhos (“Esquecer arquivos guardados” apaga essa cópia).</p>
         <p><strong>Referências:</strong> um texto bíblico (ícone de livro, verde) abre direto no aplicativo <strong>JW Library</strong>; uma fonte de matéria (ícone de lupa, dourado e pontilhado) é pesquisada no <strong>wol.jw.org</strong>. No modo leitura o toque abre na hora; ao editar, um aviso pergunta antes. Se o app não abrir, aparece a opção “Ler no wol.jw.org”.</p>
         <p><strong>Imagens:</strong> o botão <i class="bi bi-image"></i> ao lado de cada parágrafo coloca uma imagem logo abaixo dele, como parágrafo identado (recuo, tamanho e legenda ajustáveis). Elas vão no “Esboço final .html” e no PDF — somente quando “Texto” está marcado — e <em>não</em> vão no .jwlibrary.</p>
         <p><strong>Guardar e instalar:</strong> “Esboço final .html” baixa o arquivo; “Guardar no Drive” envia esse mesmo arquivo para a pasta “Discursos JW” do seu Google Drive (exige abrir a ferramenta por um endereço https e configurar o ID do cliente na engrenagem; o botão “Compartilhar” é a alternativa sem configuração). “Instalar app” coloca a ferramenta na tela inicial, também por https.</p>
@@ -1273,10 +1407,13 @@
 
   function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s == null ? '' : s; return d.innerHTML; }
 
+  // statusSeq/statusUltimaCls: o módulo de microinterações usa para saber se uma ação terminou bem (ok), com erro (err) ou sem mexer na tela.
+  let statusSeq = 0, statusUltimaCls = '';
   function setStatus(msg, cls){
     const bar = el('statusBar');
     bar.textContent = msg || '';
     bar.className = 'status-bar' + (cls ? ' ' + cls : '');
+    statusSeq++; statusUltimaCls = cls || '';
   }
 
   function isoNow(){ return new Date().toISOString().split('.')[0] + 'Z'; }
@@ -1330,6 +1467,7 @@
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.setAttribute('role', 'status');
+    toast.style.setProperty('--dur', (duracaoMs || 6000) + 'ms');   // linha que encolhe até o aviso sumir
     const msg = document.createElement('span');
     msg.textContent = mensagem;
     toast.appendChild(msg);
@@ -1370,16 +1508,26 @@
   const HANDLE_DB_STORE = 'handles';
   const ARQ_DB_STORE = 'arquivos';   // cópia dos últimos arquivos carregados (funciona em qualquer navegador, inclusive no celular)
 
+  // Uma única conexão ao banco para a página toda (antes cada leitura/gravação abria — e deixava aberta — uma conexão nova).
+  let handleDbPromessa = null;
   function abrirHandleDB(){
-    return new Promise((resolve, reject) => {
+    if (handleDbPromessa) return handleDbPromessa;
+    handleDbPromessa = new Promise((resolve, reject) => {
       const req = indexedDB.open(HANDLE_DB_NOME, 2);
       req.onupgradeneeded = () => {
         if (!req.result.objectStoreNames.contains(HANDLE_DB_STORE)) req.result.createObjectStore(HANDLE_DB_STORE);
         if (!req.result.objectStoreNames.contains(ARQ_DB_STORE)) req.result.createObjectStore(ARQ_DB_STORE);
       };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
+      req.onsuccess = () => {
+        const db = req.result;
+        db.onversionchange = () => { try{ db.close(); }catch(e){} handleDbPromessa = null; };
+        db.onclose = () => { handleDbPromessa = null; };
+        resolve(db);
+      };
+      req.onerror = () => { handleDbPromessa = null; reject(req.error); };
+      req.onblocked = () => {};
     });
+    return handleDbPromessa;
   }
   async function salvarHandle(chave, handle){
     try{
@@ -1524,11 +1672,23 @@
     try{ localStorage.setItem('editorNotasIncluirTextoV4', this.checked); }catch(e){}
   });
 
-  async function ensureSql(){
-    if (SQL) return SQL;
-    SQL = await initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${f}` });
-    return SQL;
+  // A mesma promessa serve a quem chamar durante a inicialização (o aquecimento em segundo plano e o carregamento de um arquivo).
+  let sqlPromessa = null;
+  function ensureSql(){
+    if (SQL) return Promise.resolve(SQL);
+    if (!sqlPromessa){
+      sqlPromessa = initSqlJs({ locateFile: f => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${f}` })
+        .then(m => (SQL = m))
+        .catch(e => { sqlPromessa = null; throw e; });   // falhou (sem rede?): a próxima chamada tenta de novo
+    }
+    return sqlPromessa;
   }
+  // Aquecimento: compila o SQLite (WebAssembly) enquanto a pessoa ainda decide o que abrir, para o primeiro arquivo não esperar por isso.
+  function aquecerSql(){
+    const iniciar = () => { try{ if (typeof initSqlJs === 'function') ensureSql().catch(() => {}); }catch(e){} };
+    if (window.requestIdleCallback) requestIdleCallback(iniciar, { timeout: 2500 }); else setTimeout(iniciar, 800);
+  }
+  if (document.readyState === 'complete') aquecerSql(); else window.addEventListener('load', aquecerSql, { once: true });
 
   // ================= Formatação das notas =================
   // Os botões de negrito/sublinhado ficam na barra flutuante que acompanha a seleção (p4b);
@@ -1631,19 +1791,13 @@
     if (modoLeituraAtivo){
       btn.innerHTML = '<i class="bi bi-pencil-square"></i>'; btn.classList.add('modo-ativo');
       btn.title = 'Voltar a editar'; btn.setAttribute('aria-label', 'Voltar a editar');
-      el('btn-ocultar-controles').style.display = 'inline-flex';
-      el('chkNumerosWrap').style.display = 'inline-flex';
-      el('chkOcultarNumeros').checked = true;
-      document.body.classList.add('numeros-ocultos');
+      document.body.classList.add('numeros-ocultos');   // leitura começa sem os números (o botão do rodapé os traz de volta)
       definirEdicaoNotas(false);
       aplicarEstiloLeituraLimpa();
     } else {
       btn.innerHTML = '<i class="bi bi-book"></i>'; btn.classList.remove('modo-ativo');
       btn.title = 'Ver prévia limpa (esboço + notas)'; btn.setAttribute('aria-label', 'Ver prévia limpa do esboço com as notas');
-      el('btn-ocultar-controles').style.display = 'none';
-      el('chkNumerosWrap').style.display = 'none';
-      el('chkOcultarNumeros').checked = false;
-      document.body.classList.remove('controles-ocultos', 'numeros-ocultos');
+      document.body.classList.remove('controles-ocultos', 'quadro-oculto', 'numeros-ocultos');   // voltar a editar traz de volta controles e quadro
       definirEdicaoNotas(true);
       conferirCorrespondenciaTitulos();
       document.querySelectorAll('#conteudo-esboco .ref-rotulo, #conteudo-esboco .titulo-nota, #conteudo-esboco .item-comentario')
@@ -1651,12 +1805,43 @@
     }
   }
 
-  window.ocultarControles = function(){ document.body.classList.add('controles-ocultos'); };
+  // Leitura limpa: esconde os controles e também o quadro de notas (cada um volta pelo seu botão do rodapé)
+  window.ocultarControles = function(){ document.body.classList.add('controles-ocultos', 'quadro-oculto'); };
   // "Mostrar controles" já devolve o modo de edição (sair da leitura também reexibe a barra de ferramentas)
   window.mostrarControles = function(){
     if (modoLeituraAtivo) toggleModoLeitura();
     document.body.classList.remove('controles-ocultos');
   };
+  // ---- Rodapé: Controles e Quadro de notas são comandos separados; numeração só existe na leitura ----
+  (function(){
+    const corpo = document.body, bt = el('dockControles'), bq = el('dockQuadro'), bn = el('dockNumeros'), meta = el('pubMeta');
+    let ultimo = '';
+    function sincronizar(){
+      const c = corpo.classList.contains('controles-ocultos'), q = corpo.classList.contains('quadro-oculto');
+      const n = corpo.classList.contains('numeros-ocultos'), temQuadro = meta.style.display === 'block';
+      const chave = [c, q, n, temQuadro, modoLeituraAtivo].join();
+      if (chave === ultimo) return;
+      ultimo = chave;
+      bt.setAttribute('aria-expanded', String(!c));
+      bt.title = c ? 'Mostrar os controles (carregar, exportar, salvar)' : 'Ocultar os controles';
+      bq.setAttribute('aria-expanded', String(!q));
+      bq.title = q ? 'Mostrar o quadro de notas' : 'Ocultar o quadro de notas';
+      bq.hidden = !temQuadro;                  // sem backup/publicação ainda não há quadro para mostrar
+      bn.hidden = !modoLeituraAtivo;
+      bn.setAttribute('aria-pressed', String(!n));
+      bn.title = n ? 'Mostrar os números dos parágrafos' : 'Esconder os números dos parágrafos';
+    }
+    bt.addEventListener('click', () => {
+      if (corpo.classList.contains('controles-ocultos')) window.mostrarControles();   // na leitura limpa isto também volta a editar
+      else corpo.classList.add('controles-ocultos');
+    });
+    bq.addEventListener('click', () => corpo.classList.toggle('quadro-oculto'));
+    bn.addEventListener('click', () => corpo.classList.toggle('numeros-ocultos'));
+    // qualquer código que mude essas classes (ou mostre o quadro) mantém o rodapé em dia
+    new MutationObserver(sincronizar).observe(corpo, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(sincronizar).observe(meta, { attributes: true, attributeFilter: ['style'] });
+    sincronizar();
+  })();
   el('fabEditar').addEventListener('click', () => toggleModoLeitura());   // o mesmo botão leva à edição (na leitura) e à leitura (na edição)
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && document.body.classList.contains('controles-ocultos')) mostrarControles();
@@ -3079,7 +3264,7 @@
   // --- A barra flutuante ---
   function esconderBarraDst(){
     barraDst.classList.remove('ativo');
-    document.body.classList.remove('dst-bar-visivel');
+    document.body.classList.remove('dst-bar-visivel', 'dst-bar-ativa');
     dstSalvo = null; dstRangeVisual = null;
   }
   window.esconderBarraDestaque = esconderBarraDst;
@@ -3143,6 +3328,7 @@
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
     });
     barraDst.classList.add('ativo');
+    document.body.classList.add('dst-bar-ativa');   // (classe no body em vez de :has(), que reavalia o estilo a cada mudança na página)
     posicionarBarraDst();
   }
 
@@ -4206,7 +4392,7 @@ document.addEventListener('click',function(e){
       const corpo = s.notas.map(nt => [nt.title, htmlParaTextoPuro(nt.html)].filter(Boolean).join('\n')).filter(Boolean).join('\n\n');
       return cab + '\n' + corpo;
     }).join('\n\n');
-    navigator.clipboard.writeText(texto).then(() => {
+    return navigator.clipboard.writeText(texto).then(() => {
       setStatus(`${specs.length} parágrafo(s) copiados.`, 'ok');
     }).catch(err => {
       console.error(err);
@@ -4345,7 +4531,7 @@ document.addEventListener('click',function(e){
     const specs = aplicarRascunho(rasc);
     if (!specs.length) return null;
     const nNotas = specs.reduce((a, s) => a + s.notas.length, 0);
-    const quando = rasc.salvoEm ? new Date(rasc.salvoEm).toLocaleString('pt-BR') : '';
+    const quando = rasc.salvoEm ? fmtQuando(rasc.salvoEm, true) : '';
     const nome = (rasc.pub && rasc.pub.title) || rasc.docxTitulo || 'esboço sem título';
     return { specs, nNotas, quando, nome };
   }
@@ -4361,7 +4547,13 @@ document.addEventListener('click',function(e){
   }
 
   // ================= Início: "Continuar de onde parou?" =================
-  const fmtQuando = ms => ms ? new Date(ms).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '';
+  // Data/hora "dd/mm hh:mm" (completa: "dd/mm/aaaa hh:mm:ss"). Feita à mão: toLocaleString('pt-BR') inicializa o ICU/Intl na primeira chamada
+  // e custava ~80 ms (em CPU de celular) justamente na abertura do aplicativo.
+  const fmtQuando = (ms, completo) => {
+    if (!ms) return '';
+    const d = new Date(ms), p = n => String(n).padStart(2, '0');
+    return p(d.getDate()) + '/' + p(d.getMonth() + 1) + (completo ? '/' + d.getFullYear() : '') + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + (completo ? ':' + p(d.getSeconds()) : '');
+  };
 
   function perguntarRetomar(itens){
     return new Promise(resolve => {
@@ -4435,8 +4627,15 @@ document.addEventListener('click',function(e){
     const resp = await perguntarRetomar(itens);
     if (resp !== 'sim') return;
 
+    // Quando vai abrir em leitura limpa, troca de modo ANTES de montar o esboço (a tela ainda está vazia, então a troca é de graça).
+    // Antes o esboço era montado e calculado no modo edição e depois recalculado de novo no modo leitura — o dobro de trabalho.
+    if (temRasc){
+      if (!modoLeituraAtivo) window.toggleModoLeitura();
+      window.ocultarControles();
+    }
     // 1) esboço do rascunho  2) backup (junta as notas sem duplicar)  3) publicação
     const r = temRasc ? aplicarRascunhoInicial(rasc) : null;
+    if (temRasc && !r) window.mostrarControles();   // o rascunho não trouxe nada utilizável: volta à edição normal
     let backupOk = false;
     const aBackup = await arquivoParaRetomar('backup', hBackup, cBackup);
     if (aBackup){
@@ -4681,7 +4880,8 @@ document.addEventListener('click',function(e){
     if (imagensPendentes()){ setStatus('As imagens ainda estão carregando — tente de novo em um instante.', 'warn'); return; }
     const cfg = lerConfigDrive();
     const btn = el('btnDriveEnviar');
-    btn.disabled = true;
+    if (btn.classList.contains('btn-ocupado')) return;
+    estadoBotao(btn, 'ocupado'); ocupadoMais();
     try{
       setStatus('Entrando no Google…');
       const token = await driveObterToken(cfg.clientId);
@@ -4692,6 +4892,7 @@ document.addEventListener('click',function(e){
       const nome = nomeBaseArquivo() + '.html';
       const r = await driveEnviarHtml(token, pasta.id, nome, buildSessionHtml());
       el('overlayDrive').classList.remove('ativo');
+      estadoBotao(el('btnDrive'), 'ok', 'Guardado!'); vibrar(14);
       driveAvisar((r.atualizado ? 'Atualizado' : 'Guardado') + ' no Drive: "' + cfg.pasta + '" › ' + nome + (pasta.criada ? ' (a pasta foi criada agora)' : '') + '.', 'ok', r.webViewLink);
     }catch(err){
       console.error(err);
@@ -4699,7 +4900,8 @@ document.addEventListener('click',function(e){
       if (err.status === 403 || /access_denied|origin|redirect|invalid_client|idpiframe/i.test(String(err.message))) msg += ' Confira o ID do cliente e se o endereço desta página está nas "Origens JavaScript autorizadas" (e se a Google Drive API está ativada).';
       driveAvisar(msg, 'err');
       el('driveErro').textContent = msg;
-    } finally { btn.disabled = false; }
+      estadoBotao(btn, 'erro'); tremer(document.querySelector('#overlayDrive .painel-drive')); vibrar([20, 40, 20]);
+    } finally { ocupadoMenos(); if (btn.classList.contains('btn-ocupado')) estadoBotao(btn, 'normal'); }
   }
 
   // Folha de compartilhamento do aparelho (Android/iOS): o Drive aparece como destino, e a pasta é escolhida lá.
@@ -4752,7 +4954,7 @@ document.addEventListener('click',function(e){
   el('btnDriveEnviar').addEventListener('click', () => {
     const id = el('driveClientId').value.trim();
     const pasta = el('drivePasta').value.trim().replace(/[\\/]/g, '-') || DRIVE_PASTA_PADRAO;
-    if (!/^[\w.-]+\.apps\.googleusercontent\.com$/.test(id)){ el('driveErro').textContent = 'O ID do cliente termina em ".apps.googleusercontent.com" — copie-o inteiro do Google Cloud.'; el('driveClientId').focus(); return; }
+    if (!/^[\w.-]+\.apps\.googleusercontent\.com$/.test(id)){ el('driveErro').textContent = 'O ID do cliente termina em ".apps.googleusercontent.com" — copie-o inteiro do Google Cloud.'; el('driveClientId').focus(); tremer(el('driveClientId')); vibrar([20, 40, 20]); return; }
     const antes = lerConfigDrive();
     gravarConfigDrive({ clientId: id, pasta, pastaId: antes.pasta === pasta ? antes.pastaId : '', pastaNome: antes.pasta === pasta ? antes.pastaNome : '' });
     el('driveErro').textContent = '';
@@ -4763,6 +4965,121 @@ document.addEventListener('click',function(e){
     driveToken = null; driveTokenAte = 0; driveClienteGis = null;
     el('driveClientId').value = ''; el('drivePasta').value = DRIVE_PASTA_PADRAO;
     setStatus('Configuração do Drive apagada deste navegador.', 'ok');
+  });
+
+  // ================= Microinterações =================
+  // Toque com ondulação, estados dos botões (carregando → ok / erro), barra de progresso e vibração leve no celular.
+  // (As animações em si estão no CSS; com "reduzir movimento" elas somem, mas o indicador de carregando continua.)
+  function reduzirMovimento(){ try{ return window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){ return false; } }
+  function vibrar(padrao){ try{ if (navigator.vibrate && !reduzirMovimento()) navigator.vibrate(padrao); }catch(e){} }
+  function tremer(elemento){
+    if (!elemento || reduzirMovimento()) return;
+    elemento.classList.remove('tremer'); void elemento.offsetWidth; elemento.classList.add('tremer');
+    elemento.addEventListener('animationend', () => elemento.classList.remove('tremer'), { once: true });
+  }
+
+  // --- ondulação no ponto do toque ---
+  const SEL_ONDULACAO = '.toolbar button, .rodape-dock button, .fab-modo, .painel-retomar button, .painel-notas button, .img-acoes button, .dst-bar button:not(.dst-sw), .toast-acao';
+  document.addEventListener('pointerdown', e => {
+    if (e.button > 0 || reduzirMovimento()) return;
+    const b = e.target.closest && e.target.closest(SEL_ONDULACAO);
+    if (!b || b.disabled) return;
+    const r = b.getBoundingClientRect();
+    const d = Math.max(r.width, r.height) * 2;
+    if (getComputedStyle(b).position === 'static') b.style.position = 'relative';
+    b.style.overflow = 'hidden';
+    const o = document.createElement('span');
+    o.className = 'ripple';
+    o.style.cssText = `width:${d}px;height:${d}px;left:${e.clientX - r.left - d / 2}px;top:${e.clientY - r.top - d / 2}px`;
+    b.appendChild(o);
+    o.addEventListener('animationend', () => o.remove(), { once: true });
+  }, { passive: true });
+
+  // --- ocupado: barra fina no topo (só aparece se demorar mais de ~0,12 s, para não piscar) ---
+  let nOcupados = 0, tOcupado = null;
+  function ocupadoMais(){
+    nOcupados++;
+    if (nOcupados === 1) tOcupado = setTimeout(() => { document.body.classList.add('ocupado'); el('barraProgresso').setAttribute('aria-hidden', 'false'); }, 120);
+  }
+  function ocupadoMenos(){
+    nOcupados = Math.max(0, nOcupados - 1);
+    if (!nOcupados){ clearTimeout(tOcupado); document.body.classList.remove('ocupado'); el('barraProgresso').setAttribute('aria-hidden', 'true'); }
+  }
+
+  // --- estados do botão: ocupado (gira) → ok (✓) / erro (✕) → volta ao normal ---
+  function rotuloOriginal(html){
+    const t = document.createElement('div'); t.innerHTML = html;
+    t.querySelectorAll('i.bi, .btn-spin, .ripple').forEach(x => x.remove());
+    return t.textContent.trim();
+  }
+  function estadoBotao(btn, estado, rotulo){
+    if (!btn) return;
+    clearTimeout(btn._fbT);
+    if (btn._orig === undefined){
+      const c = btn.cloneNode(true);
+      c.querySelectorAll('.ripple').forEach(x => x.remove());
+      btn._orig = c.innerHTML;
+    }
+    const base = rotuloOriginal(btn._orig);
+    btn.classList.remove('btn-ocupado', 'btn-ok', 'btn-erro');
+    btn.removeAttribute('aria-busy');
+    const restaurar = () => { btn.innerHTML = btn._orig; btn._orig = undefined; btn.classList.remove('btn-ocupado', 'btn-ok', 'btn-erro'); btn.removeAttribute('aria-busy'); };
+    if (estado === 'normal'){ restaurar(); return; }
+    if (estado === 'ocupado'){
+      btn.classList.add('btn-ocupado'); btn.setAttribute('aria-busy', 'true');
+      btn.innerHTML = '<span class="btn-spin" aria-hidden="true"></span>' + (base ? ' ' + base : '');
+      return;
+    }
+    const ok = estado === 'ok';
+    btn.classList.add(ok ? 'btn-ok' : 'btn-erro');
+    btn.innerHTML = '<i class="bi ' + (ok ? 'bi-check-lg' : 'bi-x-lg') + '" aria-hidden="true"></i>' + ((rotulo || base) ? ' ' + (rotulo || base) : '');
+    btn._fbT = setTimeout(restaurar, ok ? 1600 : 2000);
+  }
+
+  // Envolve uma ação do botão: mostra "ocupado" se demorar (>0,15 s) e, ao terminar, ✓ se a ação avisou "ok", ✕ se avisou erro,
+  // e nada se ela não fez nada (ex.: "cancelar" numa confirmação). Também impede o clique duplo enquanto roda.
+  function comFeedback(fn, acharBotao, opc){
+    opc = opc || {};
+    return function(){
+      const btn = acharBotao();
+      if (btn && btn._emCurso) return;
+      const seq0 = statusSeq;
+      const terminar = (falhou) => {
+        if (btn) btn._emCurso = false;
+        ocupadoMenos();
+        if (!btn) return;
+        if (falhou || (statusSeq !== seq0 && statusUltimaCls === 'err')){ estadoBotao(btn, 'erro'); tremer(btn); vibrar([20, 40, 20]); }
+        else if (statusSeq !== seq0 && statusUltimaCls !== 'warn'){ estadoBotao(btn, 'ok', opc.rotuloOk); vibrar(12); }
+        else estadoBotao(btn, 'normal');
+      };
+      if (btn) btn._emCurso = true;
+      ocupadoMais();
+      let r;
+      try{ r = fn.apply(this, arguments); }catch(err){ terminar(true); throw err; }
+      if (!(r && typeof r.then === 'function')){ terminar(false); return r; }
+      const tGira = opc.semGirar ? null : setTimeout(() => { if (btn && btn._emCurso) estadoBotao(btn, 'ocupado'); }, 150);
+      return r.then(v => { clearTimeout(tGira); terminar(false); return v; }, err => { clearTimeout(tGira); terminar(true); throw err; });
+    };
+  }
+  const porOnclick = nome => () => document.querySelector('button[onclick^="' + nome + '("]');
+  loadBackup = comFeedback(loadBackup, porOnclick('iniciarUploadBackup'));
+  loadPub = comFeedback(loadPub, porOnclick('iniciarUploadPub'));
+  carregarEsboco = comFeedback(carregarEsboco, porOnclick('iniciarUploadEsboco'));
+  window.gerarJwlibrary = comFeedback(window.gerarJwlibrary, () => el('btnGerar'));
+  window.baixarSessao = comFeedback(window.baixarSessao, () => el('btnEsbocoFinal'), { rotuloOk: 'Baixado!' });
+  window.imprimirLimpo = comFeedback(window.imprimirLimpo, porOnclick('imprimirLimpo'));
+  window.copiarNotas = comFeedback(window.copiarNotas, porOnclick('copiarNotas'), { rotuloOk: 'Copiado!', semGirar: true });
+  window.confirmarNotas = comFeedback(window.confirmarNotas, porOnclick('confirmarNotas'), { rotuloOk: 'Gravado!' });
+  window.salvarNotas = comFeedback(window.salvarNotas, porOnclick('salvarNotas'), { rotuloOk: 'Salvo!' });
+  window.restaurarNotas = comFeedback(window.restaurarNotas, porOnclick('restaurarNotas'));
+  window.limparNotas = comFeedback(window.limparNotas, porOnclick('limparNotas'));
+
+  // --- pequenos gestos ---
+  el('fabEditar').addEventListener('click', () => vibrar(10));
+  document.addEventListener('click', e => {
+    const b = e.target.closest && e.target.closest('.dock-tema');
+    if (!b) return;
+    b.querySelectorAll('i.bi').forEach(i => { i.classList.remove('gira'); void i.offsetWidth; i.classList.add('gira'); });
   });
 })();
 </script>

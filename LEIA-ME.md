@@ -1,8 +1,8 @@
-# Pacote web app — Editor de Esboços e Notas JW (v4-05)
+# Pacote web app — Editor de Esboços e Notas JW (v4-07)
 
 Esta pasta é o editor pronto para ser **hospedado** num endereço https. Hospedado assim, ele:
 - pode ser **instalado como aplicativo** (Android/Chrome, iPhone/Safari, computador) e abre em tela cheia;
-- **abre sem internet** depois da primeira vez (o service worker guarda o app e as bibliotecas);
+- **abre na hora e sem internet** depois da primeira vez (o service worker guarda o app e as bibliotecas e não espera a rede para abrir);
 - permite **Guardar no Drive** (login do Google exige https).
 
 Arquivos: `index.html` (a ferramenta), `manifest.webmanifest`, `sw.js` (service worker) e `icons/`. Mantenha todos juntos na mesma pasta.
@@ -26,7 +26,9 @@ Nada do que você escreve vai para o servidor: esboço, notas e backup ficam só
 - **Computador (Chrome/Edge):** ícone de instalar na barra de endereço, ou o botão **Instalar app**.
 
 ## 3. Atualizar para uma versão nova
-Troque o `index.html` no hospedeiro e, em `sw.js`, mude a linha `const VERSAO = '...'` (ex.: `v4-06-1`). Isso faz os aparelhos baixarem de novo; abrir o app duas vezes aplica a atualização.
+Troque o `index.html` no hospedeiro e, em `sw.js`, mude a linha `const VERSAO = '...'` (esta versão vem como `v4-07-1`; na próxima, use por exemplo `v4-08-1`). Isso faz os aparelhos baixarem de novo.
+O app abre sempre da cópia guardada (por isso é rápido) e busca a versão nova em segundo plano: **abra o app duas vezes** para a atualização aparecer.
+As bibliotecas (JSZip, sql.js, mammoth, ícones) ficam num cache separado, `editor-esbocos-libs-1`, que não é apagado a cada versão. Só mude esse número se algum endereço de biblioteca mudar no `index.html`.
 
 ## 4. Guardar no Google Drive (opcional, uma vez só)
 O botão **Guardar no Drive** envia o "Esboço final .html" para a pasta **Discursos JW** do seu Drive (o nome pode ser mudado na engrenagem ao lado do botão). Precisa de um *ID do cliente OAuth* gratuito:
