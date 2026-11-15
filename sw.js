@@ -3,7 +3,7 @@
    - A PÁGINA abre direto da cópia guardada (nunca espera a rede) e é atualizada em segundo plano para a próxima abertura.
    - As BIBLIOTECAS (cdnjs, versões fixas) ficam num cache próprio: baixadas uma vez e nunca mais revalidadas.
    Para publicar uma versão nova: troque VERSAO abaixo (isso faz os aparelhos baixarem de novo). */
-const VERSAO = 'v4-07-1';
+const VERSAO = 'v4-20-22';
 const CACHE_APP = 'editor-esbocos-app-' + VERSAO;
 const CACHE_LIBS = 'editor-esbocos-libs-1';   // só muda se alguma biblioteca mudar de versão no index.html
 const APP = ['./index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'];
