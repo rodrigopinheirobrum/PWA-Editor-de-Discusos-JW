@@ -3,9 +3,10 @@
    - A PÁGINA abre direto da cópia guardada (nunca espera a rede) e é atualizada em segundo plano para a próxima abertura.
    - As BIBLIOTECAS (cdnjs, versões fixas) ficam num cache próprio: baixadas uma vez e nunca mais revalidadas.
    Para publicar uma versão nova: troque VERSAO abaixo (isso faz os aparelhos baixarem de novo). */
-const VERSAO = 'v4-20-21';
+const VERSAO = 'v4-20-24';
 const CACHE_APP = 'editor-esbocos-app-' + VERSAO;
 const CACHE_LIBS = 'editor-esbocos-libs-1';   // só muda se alguma biblioteca mudar de versão no index.html
+const CACHE_IMG_REMOTA = 'editor-esbocos-img-remota-1';   // imagens "ligadas pelo endereço" (fora do jw.org/.mht): guardadas na 1ª vez que carregam
 const APP = ['./index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png'];
 const LIBS = [
   'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
@@ -49,7 +50,7 @@ self.addEventListener('install', e => {
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {
     const nomes = await caches.keys();
-    await Promise.all(nomes.filter(k => k.startsWith('editor-esbocos-') && k !== CACHE_APP && k !== CACHE_LIBS).map(k => caches.delete(k)));
+    await Promise.all(nomes.filter(k => k.startsWith('editor-esbocos-') && k !== CACHE_APP && k !== CACHE_LIBS && k !== CACHE_IMG_REMOTA).map(k => caches.delete(k)));
     await self.clients.claim();
   })());
 });
@@ -97,6 +98,26 @@ self.addEventListener('fetch', e => {
       const guardado = await (await caches.open(CACHE_APP)).match(req, { ignoreSearch: true });
       return guardado || fetch(req);
     })());
+    return;
+  }
+
+  // Imagem "ligada pelo endereço" (vinda de .mht, fora do jw.org/cdnjs): guarda uma cópia na primeira vez que
+  // carrega com sucesso, pra continuar aparecendo mesmo que o link quebre depois (ex.: endereço com validade
+  // curta) — o mesmo problema que fazia a imagem sumir ao reabrir o app depois de um tempo.
+  if (req.destination === 'image'){
+    e.respondWith((async () => {
+      const cache = await caches.open(CACHE_IMG_REMOTA);
+      const guardada = await cache.match(req);
+      if (guardada) return guardada;
+      try{
+        const r = await fetch(req);
+        if (r && (r.ok || r.type === 'opaque')) cache.put(req, r.clone());
+        return r;
+      }catch(erro){
+        return guardada || Response.error();   // sem rede e sem cópia: a página trata como erro de imagem, como já fazia
+      }
+    })());
+    return;
   }
   // Google (Drive/login) e demais endereços: sempre pela rede, sem interferência.
 });
